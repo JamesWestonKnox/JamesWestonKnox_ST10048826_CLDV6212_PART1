@@ -1,4 +1,5 @@
 using ABC_RETAIL.Models;
+using ABC_RETAIL.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -6,11 +7,17 @@ namespace ABC_RETAIL.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly BlobService _blobService;
+        private readonly TableService _tableService;
+        private readonly QueueService _queueService;
+        private readonly FileService _fileService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(BlobService blobService, TableService tableService, QueueService queueService, FileService fileService)
         {
-            _logger = logger;
+            _blobService = blobService;
+            _tableService = tableService;
+            _queueService = queueService;
+            _fileService = fileService;
         }
 
         public IActionResult Index()
