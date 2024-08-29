@@ -25,13 +25,31 @@ namespace ABC_RETAIL.Controllers
             return View();
         }
 
+        public IActionResult Customers()
+        {
+            return View();
+        }
+
+        public IActionResult Products()
+        {
+            return View();
+        }
+        public IActionResult Orders()
+        {
+            return View();
+        }
+        public IActionResult Contracts()
+        {
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
             if (file != null)
             {
                 using var stream = file.OpenReadStream();
-                await _blobService.UploadBlobAsync("multimedia", file.FileName, stream);
+                await _blobService.UploadBlobAsync("product-images", file.FileName, stream);
             }
             return RedirectToAction("Index");
         }
@@ -47,9 +65,12 @@ namespace ABC_RETAIL.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessOrder(string orderId)
+        public async Task<IActionResult> ProcessOrder(int orderId)
         {
-            await _queueService.SendMessageAsync("order-processing", $"Processing order {orderId}");
+            if (orderId > 0)
+            {
+                await _queueService.SendMessageAsync("order-processing", $"Processing order {orderId}");
+            }
             return RedirectToAction("Index");
         }
 
