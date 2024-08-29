@@ -52,7 +52,7 @@ namespace ABC_RETAIL.Controllers
                 await _blobService.UploadBlobAsync("product-images", file.FileName, stream);
                 await _queueService.SendMessageAsync("product-processing", $"Uploading product {file.FileName}");
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Products");
         }
 
         [HttpPost]
@@ -63,7 +63,7 @@ namespace ABC_RETAIL.Controllers
                 await _tableService.AddEntityAsync(profile);
                 await _queueService.SendMessageAsync("customer-processing", $"Adding customer {Email}");
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Customers");
         }
 
         [HttpPost]
@@ -73,7 +73,7 @@ namespace ABC_RETAIL.Controllers
             {
                 await _queueService.SendMessageAsync("order-processing", $"Processing order {orderID}");
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Orders");
         }
 
         [HttpPost]
@@ -85,7 +85,7 @@ namespace ABC_RETAIL.Controllers
                 await _fileService.UploadFileAsync("contracts", file.FileName, stream);
                 await _queueService.SendMessageAsync("contract-processing", $"Uploading contract {file.FileName}");
             }
-            return RedirectToAction("Index");
+            return RedirectToAction("Contracts");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
