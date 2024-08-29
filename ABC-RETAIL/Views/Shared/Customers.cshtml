@@ -1,12 +1,12 @@
 ﻿@model ABC_RETAIL.Models.CustomerProfile
 
-<body>
-    <h1 style="text-align:center;" class="pageheader">Add and view customers below</h1>
+<body style="background-color: lightsteelblue">
+    <h1 style="text-align:center;" class="pageheader">Add customers below</h1>
     <form asp-action="AddCustomerProfile" method="post">
         <input type="text" name="FirstName" placeholder="First Name" />
         <input type="text" name="LastName" placeholder="Last Name" />
         <input type="email" name="Email" placeholder="Email" />
         <input type="text" name="PhoneNumber" placeholder="Phone Number" />
-        <button type="submit">Add Profile</button>
+        <button type="submit">Add Customer Profile</button>
     </form>
 </body>

@@ -1,5 +1,13 @@
 ﻿
 
-<body style="background-color: white">
+<body style="background-color: lightsteelblue">
     <h1 style="text-align:center;" class="pageheader">Welcome to ABC RETAIL</h1>
+    <div class="button-container">
+        <a asp-controller="Home" asp-action="Customers" class="button-link"><button class="home-button">Customers</button></a>
+        <a asp-controller="Home" asp-action="Products" class="button-link"><button class="home-button">Products</button></a>
+    </div>
+    <div class="button-container">
+        <a asp-controller="Home" asp-action="Orders" class="button-link"><button class="home-button">Orders</button></a>
+        <a asp-controller="Home" asp-action="Contracts" class="button-link"><button class="home-button">Contracts</button></a>
+    </div>
 </body>

@@ -61,7 +61,7 @@ namespace ABC_RETAIL.Controllers
             if (ModelState.IsValid)
             {
                 await _tableService.AddEntityAsync(profile);
-                await _queueService.SendMessageAsync("customer-processing", $"Processing customer {Email}");
+                await _queueService.SendMessageAsync("customer-processing", $"Adding customer {Email}");
             }
             return RedirectToAction("Index");
         }
@@ -83,6 +83,7 @@ namespace ABC_RETAIL.Controllers
             {
                 using var stream = file.OpenReadStream();
                 await _fileService.UploadFileAsync("contracts", file.FileName, stream);
+                await _queueService.SendMessageAsync("contract-processing", $"Uploading contract {file.FileName}");
             }
             return RedirectToAction("Index");
         }
