@@ -50,26 +50,28 @@ namespace ABC_RETAIL.Controllers
             {
                 using var stream = file.OpenReadStream();
                 await _blobService.UploadBlobAsync("product-images", file.FileName, stream);
+                await _queueService.SendMessageAsync("product-processing", $"Uploading product {file.FileName}");
             }
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCustomerProfile(CustomerProfile profile)
+        public async Task<IActionResult> AddCustomerProfile(CustomerProfile profile, string Email)
         {
             if (ModelState.IsValid)
             {
                 await _tableService.AddEntityAsync(profile);
+                await _queueService.SendMessageAsync("customer-processing", $"Processing customer {Email}");
             }
             return RedirectToAction("Index");
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProcessOrder(int orderId)
+        public async Task<IActionResult> ProcessOrder(int orderID)
         {
-            if (orderId > 0)
+            if (orderID > 0)
             {
-                await _queueService.SendMessageAsync("order-processing", $"Processing order {orderId}");
+                await _queueService.SendMessageAsync("order-processing", $"Processing order {orderID}");
             }
             return RedirectToAction("Index");
         }
