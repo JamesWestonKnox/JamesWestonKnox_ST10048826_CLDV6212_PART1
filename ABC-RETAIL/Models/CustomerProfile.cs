@@ -6,6 +6,8 @@ namespace ABC_RETAIL.Models
 {
     public class CustomerProfile : ITableEntity
     {
+        //getters and setters to create customer profiles for the table storage
+        //unique partitin key used in table storage
         public string PartitionKey { get; set; }
         public string RowKey { get; set; }
         public DateTimeOffset? Timestamp { get; set; }

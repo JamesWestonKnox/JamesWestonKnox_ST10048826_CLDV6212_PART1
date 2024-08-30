@@ -12,6 +12,7 @@ namespace ABC_RETAIL.Controllers
         private readonly QueueService _queueService;
         private readonly FileService _fileService;
 
+        //initializing storage services for use in program
         public HomeController(BlobService blobService, TableService tableService, QueueService queueService, FileService fileService)
         {
             _blobService = blobService;
@@ -43,6 +44,11 @@ namespace ABC_RETAIL.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Method that checks if the file is not null then uses azure blob service and queue service to upload to the storage services
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
@@ -55,6 +61,12 @@ namespace ABC_RETAIL.Controllers
             return RedirectToAction("Products");
         }
 
+        /// <summary>
+        /// Method that checks if the customer profile model state is valid then adds the customer profile entity to the table storage as welll as sends a message to the queue service
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="Email"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> AddCustomerProfile(CustomerProfile profile, string Email)
         {
@@ -66,6 +78,11 @@ namespace ABC_RETAIL.Controllers
             return RedirectToAction("Customers");
         }
 
+        /// <summary>
+        /// Method that checks if orderId is greater then zero then sends a message to the order processing queue service
+        /// </summary>
+        /// <param name="orderID"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> ProcessOrder(int orderID)
         {
@@ -76,6 +93,11 @@ namespace ABC_RETAIL.Controllers
             return RedirectToAction("Orders");
         }
 
+        /// <summary>
+        /// Method that checks if the contract file is not null then Upload the chosen file to the file share storage service as well as a message to the queue service
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> UploadContract(IFormFile file)
         {

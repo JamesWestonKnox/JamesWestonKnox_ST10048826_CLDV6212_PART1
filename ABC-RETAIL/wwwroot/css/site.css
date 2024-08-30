@@ -98,16 +98,19 @@ p {
     padding: 0px;
     max-width: 600px;
 }
+/* (OpenAI,2024)*/
 
 .button-link {
-    flex: 1 1 calc(50% - 20px); /* Each button link takes up roughly 50% minus the gap */
-    display: flex; /* Use flexbox to center the button */
-    justify-content: center; /* Center the button horizontally within the link */
-    align-items: center; /* Center the button vertically within the link */
-    padding: 0; /* Remove any default padding */
-    margin: 0; /* Remove any default margin */
-    text-decoration: none; /* Remove link decoration */
+    flex: 1 1 calc(50% - 20px); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    padding: 0;
+    margin: 0; 
+    text-decoration: none; 
 }
+/* (OpenAI,2024)*/
+
 .home-button {
     justify-content: center;
     align-items: center;
@@ -117,6 +120,7 @@ p {
     max-width: 300px;
     box-sizing: border-box;
 }
+/* (OpenAI,2024)*/
 
 button {
     display: flex;
@@ -206,3 +210,8 @@ form {
 a {
     text-decoration: none;
 }
+
+/* REFERENCE
+
+    OpenAI.2024.Chat-GPT (Version 3.5).[Large language model].Available at: https://chat.openai.com/ [Accessed: 29 August 2024]
+*/
