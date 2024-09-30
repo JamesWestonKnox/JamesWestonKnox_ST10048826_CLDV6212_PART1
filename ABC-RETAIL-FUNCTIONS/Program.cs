@@ -1,6 +1,9 @@
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Azure.WebJobs.Extensions.Storage.Blobs;
+using Microsoft.Azure.WebJobs.Extensions.Storage.Queues;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
@@ -8,6 +11,15 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
+    })
+
+    .ConfigureWebJobs(b =>
+    {
+
+        b.AddHttp();
+        b.AddAzureStorageBlobs(); 
+        b.AddAzureStorageQueues(); 
+        //b.AddAzureStorageQueuesScaleForTrigger(); 
     })
     .Build();
 
