@@ -13,10 +13,9 @@ namespace ABC_RETAIL_FUNCTIONS
 {
     public static class ProcessQueueMessage
     {
-
         [Function("ProcessQueueMessage")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             string queueName = req.Query["queueName"];
@@ -24,10 +23,11 @@ namespace ABC_RETAIL_FUNCTIONS
 
             if (string.IsNullOrEmpty(queueName) || string.IsNullOrEmpty(message))
             {
+                log.LogError("Queue name or message is null or empty.");
                 return new BadRequestObjectResult("Queue name and message must be provided.");
             }
 
-            var connectionString = Environment.GetEnvironmentVariable("AzureStorage:ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("connection1");
             var queueServiceClient = new QueueServiceClient(connectionString);
             var queueClient = queueServiceClient.GetQueueClient(queueName);
             await queueClient.CreateIfNotExistsAsync();

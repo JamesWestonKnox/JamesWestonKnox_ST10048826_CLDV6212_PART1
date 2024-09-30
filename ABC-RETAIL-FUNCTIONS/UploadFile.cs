@@ -15,7 +15,7 @@ namespace ABC_RETAIL_FUNCTIONS
     {
         [Function("UploadFile")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             string shareName = req.Query["shareName"];
@@ -26,15 +26,23 @@ namespace ABC_RETAIL_FUNCTIONS
                 return new BadRequestObjectResult("Share name and file name must be provided.");
             }
 
-            var connectionString = Environment.GetEnvironmentVariable("AzureStorage:ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("connection1");
             var shareServiceClient = new ShareServiceClient(connectionString);
             var shareClient = shareServiceClient.GetShareClient(shareName);
             await shareClient.CreateIfNotExistsAsync();
             var directoryClient = shareClient.GetRootDirectoryClient();
             var fileClient = directoryClient.GetFileClient(fileName);
 
-            using var stream = req.Body;
-            await fileClient.CreateAsync(stream.Length);
+            if (!req.ContentType.StartsWith("multipart/form-data"))
+            {
+                return new BadRequestObjectResult("Request must be multipart/form-data.");
+            }
+
+            var formCollection = await req.ReadFormAsync();
+            var file = formCollection.Files[0];
+
+            await fileClient.CreateAsync(file.Length);
+            using var stream = file.OpenReadStream();
             await fileClient.UploadAsync(stream);
 
             return new OkObjectResult("File uploaded to Azure Files");

@@ -19,7 +19,6 @@ var host = new HostBuilder()
         b.AddHttp();
         b.AddAzureStorageBlobs(); 
         b.AddAzureStorageQueues(); 
-        //b.AddAzureStorageQueuesScaleForTrigger(); 
     })
     .Build();
 

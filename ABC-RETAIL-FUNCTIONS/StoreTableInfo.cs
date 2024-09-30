@@ -1,4 +1,5 @@
-﻿using Azure.Data.Tables;
+﻿using ABC_RETAIL.Models;
+using Azure.Data.Tables;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ABC_RETAIL_FUNCTIONS
@@ -15,25 +17,30 @@ namespace ABC_RETAIL_FUNCTIONS
     {
         [Function("StoreTableInfo")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
-            string tableName = req.Query["tableName"];
-            string partitionKey = req.Query["partitionKey"];
-            string rowKey = req.Query["rowKey"];
-            string data = req.Query["data"];
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var profile = JsonSerializer.Deserialize<CustomerProfile>(requestBody);
 
-            if (string.IsNullOrEmpty(tableName) || string.IsNullOrEmpty(partitionKey) || string.IsNullOrEmpty(rowKey) || string.IsNullOrEmpty(data))
+            if (profile == null || string.IsNullOrEmpty(profile.PartitionKey) || string.IsNullOrEmpty(profile.RowKey))
             {
                 return new BadRequestObjectResult("Table name, partition key, row key, and data must be provided.");
             }
 
-            var connectionString = Environment.GetEnvironmentVariable("AzureStorage:ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("connection1");
             var serviceClient = new TableServiceClient(connectionString);
-            var tableClient = serviceClient.GetTableClient(tableName);
+            var tableClient = serviceClient.GetTableClient(profile.PartitionKey);
             await tableClient.CreateIfNotExistsAsync();
 
-            var entity = new TableEntity(partitionKey, rowKey) { ["Data"] = data };
+            var entity = new TableEntity(profile.PartitionKey, profile.RowKey)
+            {
+                ["FirstName"] = profile.FirstName,
+                ["LastName"] = profile.LastName,
+                ["Email"] = profile.Email,
+                ["PhoneNumber"] = profile.PhoneNumber
+            };
+
             await tableClient.AddEntityAsync(entity);
 
             return new OkObjectResult("Data added to table");

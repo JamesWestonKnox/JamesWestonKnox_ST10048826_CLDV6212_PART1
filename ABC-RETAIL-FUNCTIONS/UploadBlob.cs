@@ -15,7 +15,7 @@ namespace ABC_RETAIL_FUNCTIONS
     {
         [Function("UploadBlob")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             string containerName = req.Query["containerName"];
@@ -26,13 +26,22 @@ namespace ABC_RETAIL_FUNCTIONS
                 return new BadRequestObjectResult("Container name and blob name must be provided.");
             }
 
-            var connectionString = Environment.GetEnvironmentVariable("AzureStorage:ConnectionString");
+            var connectionString = Environment.GetEnvironmentVariable("connection1");
             var blobServiceClient = new BlobServiceClient(connectionString);
             var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
             await containerClient.CreateIfNotExistsAsync();
             var blobClient = containerClient.GetBlobClient(blobName);
 
-            using var stream = req.Body;
+            if (!req.ContentType.StartsWith("multipart/form-data"))
+            {
+                return new BadRequestObjectResult("Request must be multipart/form-data.");
+            }
+
+            // Read the file from the request
+            var formCollection = await req.ReadFormAsync();
+            var file = formCollection.Files[0];
+
+            using var stream = file.OpenReadStream();
             await blobClient.UploadAsync(stream, true);
 
             return new OkObjectResult("Blob uploaded");

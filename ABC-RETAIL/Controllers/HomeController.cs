@@ -1,5 +1,6 @@
 using ABC_RETAIL.Models;
 using ABC_RETAIL.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -113,7 +114,14 @@ namespace ABC_RETAIL.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var exceptionFeature = HttpContext.Features.Get<IExceptionHandlerFeature>();
+            var errorViewModel = new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+                ErrorMessage = exceptionFeature?.Error.Message, // Capture the error message
+            };
+
+            return View(errorViewModel);
         }
     }
 }
