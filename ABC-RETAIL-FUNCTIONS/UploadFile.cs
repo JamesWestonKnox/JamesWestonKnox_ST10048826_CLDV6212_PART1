@@ -1,4 +1,12 @@
-﻿using Azure.Storage.Files.Shares;
+﻿//James Knox
+//ST10048826
+//GROUP 3
+//References:
+//OpenAI.2024.Chat-GPT (Version 3.5).[Large language model].Available at: https://chat.openai.com/ [Accessed: 28 September 2024]
+//McCall, B., 2024. CLDV_SemesterTwo_Byron. [online] GitHub.Available at: https://github.com/ByronMcCallLecturer/CLDV_SemesterTwo_Byron [Accessed 29 August 2024].
+//McCall, B., 2024. CLDV_FunctionsApp. [online] GitHub.Available at: https://github.com/ByronMcCallLecturer/CLDV_FunctionsApp.git [Accessed 30 September 2024].
+
+using Azure.Storage.Files.Shares;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -52,12 +60,23 @@ namespace ABC_RETAIL_FUNCTIONS
             var fileClient = directoryClient.GetFileClient(fileName);
 
             //reads file stream
-            using var stream = req.Body;
+            if (!req.ContentType.StartsWith("multipart/form-data"))
+            {
+                return new BadRequestObjectResult("Request must be multipart/form-data.");
+            }
 
-            //creates new file same length as filestream
-            await fileClient.CreateAsync(stream.Length);
+            //read request data
+            var formCollection = await req.ReadFormAsync();
 
-            //uploads file
+            var file = formCollection.Files[0];
+
+            //create same length file in file share
+            await fileClient.CreateAsync(file.Length);
+            
+            //read file contents
+            using var stream = file.OpenReadStream();
+
+            //upload file to azure file share
             await fileClient.UploadAsync(stream);
 
             return new OkObjectResult("File uploaded to Azure Files");
