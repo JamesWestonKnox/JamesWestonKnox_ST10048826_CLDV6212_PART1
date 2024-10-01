@@ -17,52 +17,56 @@ namespace ABC_RETAIL.Services
 {
     public class QueueService
     {
+        //creates HttpClient
         private readonly HttpClient _httpClient;
-        private readonly ILogger<QueueService> _logger;
-
+        
+        //creates variable to hold function URL
         private readonly string _functionUrl = "https://cldv-functions1.azurewebsites.net/api/ProcessQueueMessage";
-        public QueueService(HttpClient httpClient, ILogger<QueueService> logger)
+
+        //Constructor for HttpClient
+        public QueueService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-
+        /// <summary>
+        /// Sends message to azure queue using function
+        /// </summary>
+        /// <param name="queueName">Name of desired queue</param>
+        /// <param name="message">Message to send</param>
+        /// <returns></returns>
+        /// 
         public async Task SendMessageAsync(string queueName, string message)
         {
-            try
+            //check if queue name is null or empty
+            if (string.IsNullOrEmpty(queueName))
             {
-                if (string.IsNullOrEmpty(queueName))
-                {
-                    throw new ArgumentException("Queue name cannot be null or empty.", nameof(queueName));
-                }
-
-                if (string.IsNullOrEmpty(message))
-                {
-                    throw new ArgumentException("Message cannot be null or empty.", nameof(message));
-                }
-
-                // Constructing the URL with the query parameters
-                var url = $"{_functionUrl}?queueName={Uri.EscapeDataString(queueName)}&message={Uri.EscapeDataString(message)}";
-
-                // Creating the POST request to the Azure Function
-                var request = new HttpRequestMessage(HttpMethod.Post, url);
-
-                // Sending the request
-                var response = await _httpClient.SendAsync(request);
-
-                // Checking the response status and throwing an error if it fails
-                if (!response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Error sending message to the queue via Azure Function. Status Code: {response.StatusCode}, Content: {responseContent}");
-                }
+                throw new ArgumentException("Queue name cannot be null or empty.", nameof(queueName));
             }
-            catch (Exception ex)
+
+            //check if message is null or empty
+            if (string.IsNullOrEmpty(message))
             {
-                _logger.LogError(ex, "Error sending message to the queue");
-                throw; 
+                throw new ArgumentException("Message cannot be null or empty.", nameof(message));
             }
+
+            //create URL to call function,encoding the queuename and message
+            var url = $"{_functionUrl}?queueName={Uri.EscapeDataString(queueName)}&message={Uri.EscapeDataString(message)}";
+
+            //create http request message
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+
+            ///send http request to function and await response
+            var response = await _httpClient.SendAsync(request);
+
+            //check if response is successfull
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error sending message to the queue via Azure Function. Status Code: {response.StatusCode}, Content: {responseContent}");
+            }
+
+
         }
     }
 }

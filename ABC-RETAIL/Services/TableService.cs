@@ -21,39 +21,40 @@ namespace ABC_RETAIL.Services
 {
     public class TableService
     {
+        //creates HttpClient
         private readonly HttpClient _httpClient;
-        private readonly ILogger<QueueService> _logger;
 
+        //creates variable to hold function URL
         private readonly string _functionUrl = "https://cldv-functions1.azurewebsites.net/api/StoreTableInfo";
 
-        public TableService(HttpClient httpClient, ILogger<QueueService> logger)
+        //Constructor for HttpClient
+        public TableService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        /// <summary>
+        /// Uploads customerProfile to azure table storage using function
+        /// </summary>
+        /// <param name="profile">profile object</param>
+        /// <returns></returns>
         public async Task AddEntityAsync(CustomerProfile profile)
         {
-            try
-            {
-                // Serialize the CustomerProfile object to JSON
-                var jsonContent = JsonSerializer.Serialize(profile);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                // Call the Azure Function
-                var response = await _httpClient.PostAsync(_functionUrl, content);
+            //Serialize the CustomerProfile object to JSON
+            var jsonContent = JsonSerializer.Serialize(profile);
 
-                // Check if the response is successful
-                if (!response.IsSuccessStatusCode)
-                {
-                    var responseContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException($"Error adding entity. Status Code: {response.StatusCode}, Content: {responseContent}");
-                }
-            }
-            catch (Exception ex)
+            //Create content object
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+            //send http request to function and await response
+            var response = await _httpClient.PostAsync(_functionUrl, content);
+
+            // Check if the response is successful
+            if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError(ex, "Error adding entity to table");
-                throw; // Rethrow after logging
+                var responseContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Error adding entity. Status Code: {response.StatusCode}, Content: {responseContent}");
             }
         }
     }

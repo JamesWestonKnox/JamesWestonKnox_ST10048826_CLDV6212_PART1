@@ -20,29 +20,44 @@ namespace ABC_RETAIL.Services
 {
     public class FileService
     {
+        //creates HttpClient
         private readonly HttpClient _httpClient;
 
+        //creates variable to hold function URL
         private readonly string _functionUrl = " https://cldv-functions1.azurewebsites.net/api/UploadFile?";
 
+        //Constructor for HttpClient
         public FileService(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
+        /// <summary>
+        /// Uploads fileShare to azure fileShare using function
+        /// </summary>
+        /// <param name="shareName">Name of fileShareContainer</param>
+        /// <param name="fileName">Name of file</param>
+        /// <returns></returns>
         public async Task UploadFileAsync(string shareName, string fileName, Stream content)
         {
-            // Create the URL for the function call
+            // Create the URL for the function call, encoding shareName and fileName
             var url = $"{_functionUrl}shareName={Uri.EscapeDataString(shareName)}&fileName={Uri.EscapeDataString(fileName)}";
 
+            //create instance of MultiFormDataContent to hold request body
             using var formContent = new MultipartFormDataContent();
+
+            //create streamContent object
             var streamContent = new StreamContent(content);
+
+            //indicate content type
             streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+            
             formContent.Add(streamContent, "file", fileName);
 
-            // Call the Azure Function
+            //send http request to function and await response
             var response = await _httpClient.PostAsync(url, formContent);
 
-            // Check the response status
+            //check if response is successfull
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
