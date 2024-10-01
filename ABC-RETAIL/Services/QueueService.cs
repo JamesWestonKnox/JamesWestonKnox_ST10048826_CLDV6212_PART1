@@ -50,9 +50,8 @@ namespace ABC_RETAIL.Services
             }
             catch (Exception ex)
             {
-                // Log any exceptions encountered
                 _logger.LogError(ex, "Error sending message to the queue");
-                throw; // Rethrow the exception after logging
+                throw; 
             }
         }
     }

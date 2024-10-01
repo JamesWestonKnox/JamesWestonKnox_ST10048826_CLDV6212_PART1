@@ -15,8 +15,7 @@ namespace ABC_RETAIL_FUNCTIONS
     {
         [Function("UploadBlob")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
         {
             string containerName = req.Query["containerName"];
             string blobName = req.Query["blobName"];

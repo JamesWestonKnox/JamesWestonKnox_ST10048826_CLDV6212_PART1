@@ -118,7 +118,7 @@ namespace ABC_RETAIL.Controllers
             var errorViewModel = new ErrorViewModel
             {
                 RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
-                ErrorMessage = exceptionFeature?.Error.Message, // Capture the error message
+                ErrorMessage = exceptionFeature?.Error.Message
             };
 
             return View(errorViewModel);

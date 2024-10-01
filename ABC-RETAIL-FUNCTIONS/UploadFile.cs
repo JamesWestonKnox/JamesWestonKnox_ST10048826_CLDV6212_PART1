@@ -15,8 +15,7 @@ namespace ABC_RETAIL_FUNCTIONS
     {
         [Function("UploadFile")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
-            ILogger log)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
         {
             string shareName = req.Query["shareName"];
             string fileName = req.Query["fileName"];
