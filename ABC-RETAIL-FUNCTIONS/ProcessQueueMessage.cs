@@ -16,9 +16,8 @@ namespace ABC_RETAIL_FUNCTIONS
         /// <summary>
         /// Function to receive information from QueueService and add message to the queue.
         /// </summary>
-        /// <param name="req"></param>
-        /// <param name="log"></param>
-        /// <returns></returns>
+        /// <param name="req">Http request containing queue message data</param>
+        /// <returns>Return either bad or ok object result depending on success or failure</returns>
         [Function("ProcessQueueMessage")]
         public static async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req)
         {
