@@ -13,5 +13,12 @@ namespace ABC_RETAIL_FUNCTIONS
         {
             _logger = logger;
         }
+
+        [Function("HTTPTest")]
+        public IActionResult Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequest req)
+        {
+            _logger.LogInformation("C# HTTP trigger function processed a request.");
+            return new OkObjectResult("Welcome to Azure Functions!");
+        }
     }
 }

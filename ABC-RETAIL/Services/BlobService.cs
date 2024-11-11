@@ -12,16 +12,11 @@ using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
-using System.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
-
 
 namespace ABC_RETAIL.Services
 {
     public class BlobService
     {
-        private readonly IConfiguration _configuration;
-
         //creates HttpClient
         private readonly HttpClient _httpClient;
 
@@ -29,9 +24,8 @@ namespace ABC_RETAIL.Services
         private readonly string _functionUrl = "https://cldv-functions1.azurewebsites.net/api/UploadBlob?";
 
         //Constructor for HttpClient
-        public BlobService(HttpClient httpClient, IConfiguration configuration)
+        public BlobService(HttpClient httpClient)
         {
-            _configuration = configuration;
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
@@ -68,33 +62,6 @@ namespace ABC_RETAIL.Services
                 throw new HttpRequestException($"Error uploading blob. Status Code: {response.StatusCode}, Content: {responseContent}");
             }
         }
-
-        /// <summary>
-        /// Uploads image byte file to sql database
-        /// </summary>
-        /// <param name="imageData">image byte file to upload</param>
-        /// <returns></returns>
-        public async Task InsertBlobAsync(byte[] imageData)
-        {
-            //sets connection string to sql database
-            var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            
-            //sets sql query 
-            var query = @"INSERT INTO Products (ProductImage) VALUES (@ProductImage)";
-
-            //opens connnection to sql database
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                //creates sql command
-                SqlCommand command = new SqlCommand(query, connection);
-                //assigns image byte file to parameter
-                command.Parameters.AddWithValue("@ProductImage", imageData);
-
-                connection.Open();
-                await command.ExecuteNonQueryAsync();
-            }
-        }
-
 
     }
 }

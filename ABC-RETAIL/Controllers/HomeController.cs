@@ -57,7 +57,6 @@ namespace ABC_RETAIL.Controllers
 
         /// <summary>
         /// Method that checks if the file is not null then uses azure blob service and queue service to upload to the storage services
-        /// Uploads image data file to ProductImages table in SQL database
         /// </summary>
         /// <param name="file"></param>
         /// <returns></returns>
@@ -68,14 +67,6 @@ namespace ABC_RETAIL.Controllers
             {
                 using var stream = file.OpenReadStream();
                 await _blobService.UploadBlobAsync("product-images", file.FileName, stream);
-
-                using (var memoryStream = new MemoryStream())
-                {
-                    await file.CopyToAsync(memoryStream);
-                    var imageData = memoryStream.ToArray();
-                    await _blobService.InsertBlobAsync(imageData);
-                }
-
                 await _queueService.SendMessageAsync("product-processing", $"Uploading product {file.FileName}");
             }
             return RedirectToAction("Products");
@@ -83,7 +74,6 @@ namespace ABC_RETAIL.Controllers
 
         /// <summary>
         /// Method that checks if the customer profile model state is valid then adds the customer profile entity to the table storage as welll as sends a message to the queue service
-        /// Adds customer to Customers table in SQL database
         /// </summary>
         /// <param name="profile"></param>
         /// <param name="Email"></param>
@@ -94,16 +84,13 @@ namespace ABC_RETAIL.Controllers
             if (ModelState.IsValid)
             {
                 await _tableService.AddEntityAsync(profile);
-                await _tableService.InsertCustomerAsync(profile);
                 await _queueService.SendMessageAsync("customer-processing", $"Adding customer {Email}");
             }
             return RedirectToAction("Customers");
         }
 
-
         /// <summary>
         /// Method that checks if orderId is greater then zero then sends a message to the order processing queue service
-        /// Uploads Order to Orders table in SQL database
         /// </summary>
         /// <param name="orderID"></param>
         /// <returns></returns>
@@ -113,8 +100,6 @@ namespace ABC_RETAIL.Controllers
             if (orderID > 0)
             {
                 await _queueService.SendMessageAsync("order-processing", $"Processing order {orderID}");
-                string orderStatus = "Processed";
-                await _queueService.InsertOrderAsync(orderID, orderStatus);
             }
             return RedirectToAction("Orders");
         }
