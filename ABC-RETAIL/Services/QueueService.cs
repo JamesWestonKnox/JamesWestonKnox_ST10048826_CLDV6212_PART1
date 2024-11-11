@@ -11,7 +11,9 @@
 using Azure.Storage.Queues;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ABC_RETAIL.Services
 {
@@ -19,14 +21,16 @@ namespace ABC_RETAIL.Services
     {
         //creates HttpClient
         private readonly HttpClient _httpClient;
-        
+        private readonly IConfiguration _configuration;
+
         //creates variable to hold function URL
         private readonly string _functionUrl = "https://cldv-functions1.azurewebsites.net/api/ProcessQueueMessage";
 
         //Constructor for HttpClient
-        public QueueService(HttpClient httpClient)
+        public QueueService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -65,8 +69,28 @@ namespace ABC_RETAIL.Services
                 var responseContent = await response.Content.ReadAsStringAsync();
                 throw new HttpRequestException($"Error sending message to the queue via Azure Function. Status Code: {response.StatusCode}, Content: {responseContent}");
             }
+        }
+        /// <summary>
+        /// Inserts order into sql database
+        /// </summary>
+        /// <param name="orderID">Order ID to be used as primary key in database</param>
+        /// <param name="orderStatus">Status of order</param>
+        /// <returns></returns>
+        public async Task InsertOrderAsync(int orderID, string orderStatus)
+        {
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            var query = @"INSERT INTO Orders (OrderID, OrderStatus)
+                          VALUES (@OrderID, @OrderStatus)";
 
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@OrderID", orderID);
+                command.Parameters.AddWithValue("@OrderStatus", orderStatus);
 
+                connection.Open();
+                await command.ExecuteNonQueryAsync();
+            }
         }
     }
 }
